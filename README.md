@@ -1,63 +1,73 @@
 # 2D Rocket Simulation
 
-A real-time 2D rocket physics simulation using SFML for graphics and Eigen for mathematics.
+A real-time 2D rocket landing simulation with full-state feedback LQR control, using SFML for visualization and Eigen for linear algebra. The simulation demonstrates how different LQR gain profiles affect rocket landing behavior.
 
-## Features (Planned)
-- Real-time physics simulation with gravity
-- Controllable rocket with rotatable engine
-- Adjustable thrust levels
-- Visualization using SFML
-- Linear algebra calculations with Eigen
+## Overview
 
-## Current Status
+- **Physics:** Simulates a 2D rigid-body rocket with 6-DOF (x, y, θ and their derivatives), gravity, thrust, and gimbaled engine.
+- **Control:** Uses a Linear Quadratic Regulator (LQR) for full-state feedback. Two profiles are available:
+  - **Slow:** Gentle, low-effort control.
+  - **Fast:** Aggressive, rapid stabilization.
+- **Visualization:** Real-time graphics with SFML, showing rocket state and control actions.
 
-### ✅ Completed
-- CMake build system configured
-- MinGW toolchain integrated
-- Project structure created
-- Basic build/compile workflow verified
+## How It Works
 
-### ⏳ In Progress
-- Installing SFML 2.6+
-- Installing Eigen 3.4+
+1. **LQR Gain Generation:**  
+   Run the Python script to generate LQR gain matrices for both profiles:
+   ```
+   python scripts/compute_lqr_gains.py
+   ```
+   This produces `lqr_gains_slow.json` and `lqr_gains_fast.json`.
 
-### ❌ TODO
-- Rocket physics engine implementation
-- Render system with SFML
-- User input controls
-- Simulation visualization
+2. **Build the Project:**  
+   - Prerequisites: CMake 3.16+, GCC 14+, SFML 3.0+, Eigen 5.0+.
+   - Configure and build:
+     ```
+     cd build
+     cmake ..
+     cmake --build .
+     ```
 
-## Quick Start
+3. **Run the Simulation:**  
+   From the `build` directory:
+   ```
+   ./RocketSim.exe slow   # Gentle controller
+   ./RocketSim.exe fast   # Aggressive controller
+   ```
+   The controller profile determines which gain file is loaded.
 
-### Prerequisites
-- CMake 3.16+ 
-- g++ / GCC 14.2+
-- mingw32-make
+## Project Structure
 
-All are already installed and working!
-
-### Building
-
-```bash
-cd build
-mingw32-make
-./RocketSim.exe
+```
+2D_RocketSim/
+├── CMakeLists.txt
+├── include/
+│   ├── Controller.h
+│   ├── Rocket.h
+│   └── Visualization.h
+├── lqr_gains_fast.json
+├── lqr_gains_slow.json
+├── scripts/
+│   └── compute_lqr_gains.py
+├── src/
+│   ├── Controller.cpp
+│   ├── main.cpp
+│   ├── Rocket.cpp
+│   └── Visualization.cpp
+└── build/
 ```
 
-### Installing Required Libraries
+- **src/**: C++ source files for simulation, control, and rendering.
+- **include/**: C++ headers.
+- **scripts/**: Python script for generating LQR gains.
+- **lqr_gains_*.json**: Controller gain files (auto-generated).
+- **build/**: Build output directory.
 
-#### Method 1: vcpkg (Recommended)
-```bash
-git clone https://github.com/Microsoft/vcpkg.git
-cd vcpkg
-.\bootstrap-vcpkg.bat
-.\vcpkg install sfml:x64-windows-static eigen3:x64-windows
-```
+## Notes
 
-Then rebuild:
-```bash
-cd ..\2D_RocketSim\build
-rm CMakeCache.txt
+- Only `lqr_gains_slow.json` and `lqr_gains_fast.json` are used.  
+- The simulation window displays the rocket, ground, and control actions in real time.
+- Adjust LQR weights in `scripts/compute_lqr_gains.py` to experiment with controller behavior.
 cmake .. -G "Unix Makefiles" \
   -DCMAKE_MAKE_PROGRAM="mingw32-make" \
   -DCMAKE_CXX_COMPILER="g++" \
