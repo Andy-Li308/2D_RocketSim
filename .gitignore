@@ -1,0 +1,30 @@
+# CMake and build
+build/
+cmake-build-*/
+*.cmake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# IDE
+.vscode/
+.idea/
+*.vcxproj
+*.sln
+
+# SFML/Eigen dependencies (created by FetchContent)
+_deps/
+
+# Output
+*.exe
+*.dll
+*.so
+*.a
+*.lib
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
