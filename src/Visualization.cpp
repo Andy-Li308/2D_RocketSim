@@ -4,7 +4,6 @@
 #include <iomanip>
 
 namespace Visualization {
-    // Define rendering constants
     const float PIXELS_PER_METER = 50.0f;
     const float WINDOW_WIDTH = 1200.0f;
     const float WINDOW_HEIGHT = 800.0f;
@@ -21,50 +20,30 @@ namespace Visualization {
         double x = state(0);
         double y = state(2);
         double theta = state(4);
-
-        // Convert world position to screen position (rocket center)
         sf::Vector2f center = world_to_screen(x, y);
-
-        // === Draw rocket body as white rectangle ===
-        float rocket_width = 6.0f;    // pixels  
-        float rocket_height = 60.0f;  // pixels
-
+        float rocket_width = 6.0f;
+        float rocket_height = 60.0f;
         sf::RectangleShape rocket_body(sf::Vector2f(rocket_width, rocket_height));
         rocket_body.setFillColor(sf::Color::White);
         rocket_body.setOrigin(sf::Vector2f(rocket_width / 2.0f, rocket_height / 2.0f));
         rocket_body.setPosition(center);
         rocket_body.setRotation(sf::degrees(static_cast<float>(theta * 180.0f / M_PI)));
         window.draw(rocket_body);
-
-        // Precompute rotation values
         float cos_theta = std::cos(static_cast<float>(theta));
         float sin_theta = std::sin(static_cast<float>(theta));
-
-        // === Calculate rocket tail position ===
-        // Tail offset when rocket rotates by theta
-        // Nose points in direction: (sin(theta), cos(theta)) in world space
-        // In screen space (y inverted): (sin(theta), -cos(theta))
-        // Tail is opposite: (-sin(theta), cos(theta))
         sf::Vector2f tail_offset = sf::Vector2f(
             -sin_theta * rocket_height / 2.0f,
             cos_theta * rocket_height / 2.0f
         );
         sf::Vector2f rocket_tail = center + tail_offset;
-
-        // === Draw fins at tail ===
         float fin_length = 10.0f;
         float fin_width = 2.0f;
-        
-        // Perpendicular direction to rocket (90 degrees rotated)
         float perp_sin = cos_theta;
         float perp_cos = -sin_theta;
-        
-        for (int i = -1; i <= 1; i += 2) {  // Left and right fins
+        for (int i = -1; i <= 1; i += 2) {
             sf::RectangleShape fin(sf::Vector2f(fin_width, fin_length));
             fin.setFillColor(sf::Color::White);
             fin.setOrigin(sf::Vector2f(fin_width / 2.0f, fin_length / 2.0f));
-            
-            // Offset perpendicular to rocket body
             sf::Vector2f fin_offset = sf::Vector2f(
                 i * perp_sin * rocket_width / 2.0f,
                 i * perp_cos * rocket_width / 2.0f
@@ -73,25 +52,16 @@ namespace Visualization {
             fin.setRotation(sf::degrees(static_cast<float>(theta * 180.0f / M_PI)));
             window.draw(fin);
         }
-
-        // === Draw thrust line (proportional to thrust, angled by alpha) ===
         if (rocket.thrust > 0.01f) {
             float thrust_px_length = std::min(static_cast<float>(rocket.thrust) * thrust_scale, 60.0f);
-            
-            // Thrust angle = theta + alpha
             float thrust_angle_rad = static_cast<float>(theta + rocket.alpha);
-            
-            // Draw thin red rectangle for thrust line from tail
             sf::RectangleShape thrust_line(sf::Vector2f(2.0f, thrust_px_length));
             thrust_line.setFillColor(sf::Color::Red);
             thrust_line.setPosition(rocket_tail);
-            thrust_line.setOrigin(sf::Vector2f(1.0f, 0.0f));  // Pivot at top (head of arrow)
-            // Thrust extends in direction theta + alpha (away from rocket nozzle)
+            thrust_line.setOrigin(sf::Vector2f(1.0f, 0.0f));
             thrust_line.setRotation(sf::degrees(thrust_angle_rad * 180.0f / static_cast<float>(M_PI)));
             window.draw(thrust_line);
         }
-
-        // === Draw center of mass marker ===
         sf::CircleShape com_marker(3.0f);
         com_marker.setPosition(center - sf::Vector2f(3.0f, 3.0f));
         com_marker.setFillColor(sf::Color::Yellow);

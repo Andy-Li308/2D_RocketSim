@@ -105,25 +105,11 @@ bool Controller::load_gains_from_json(const std::string& filename) {
 
 Eigen::Vector2d Controller::compute_control(const Eigen::VectorXd& state,
                                             const Eigen::VectorXd& state_ref) {
-    if (state.size() != 6 || state_ref.size() != 6) {
-        std::cerr << "[!] Error: State vector must be size 6" << std::endl;
-        return Eigen::Vector2d::Zero();
-    }
-    
-    // Compute state error
+    if (state.size() != 6 || state_ref.size() != 6) return Eigen::Vector2d::Zero();
     Eigen::VectorXd error = state - state_ref;
-    
-    // LQR control law: u = -K * error
     Eigen::Vector2d control = -K * error;
-    
-    // Saturate controls
-    // Thrust perturbation can be negative (reduce thrust below hover)
-    // Total thrust clamping happens in main after adding feedforward (mg)
     control(0) = std::clamp(control(0), -max_thrust, max_thrust);
-    
-    // Gimbal angle constrained to [-max_gimbal, max_gimbal]
     control(1) = std::clamp(control(1), -max_gimbal, max_gimbal);
-    
     return control;
 }
 
