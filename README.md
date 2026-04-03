@@ -1,16 +1,16 @@
 # 2D Rocket Simulation
 
-A real-time 2D rocket landing simulation with full-state feedback LQR control, using SFML for visualization and Eigen for linear algebra. The simulation demonstrates how different LQR gain profiles affect rocket landing behavior.
+A real-time 2D self-landing rocket simulation with full-state feedback LQR control, using SFML for visualization, Eigen for linear algebra, and matplotlib for data plots. The simulation demonstrates how different LQR gain profiles affect rocket landing behavior.
 
 ## Overview
 
-- **Physics:** Simulates a 2D rigid-body rocket with 6-DOF (x, y, θ and their derivatives), gravity, thrust, and gimbaled engine.
-- **Control:** Uses a Linear Quadratic Regulator (LQR) for full-state feedback. Two profiles are available:
-  - **Slow:** Gentle, low-effort control.
-  - **Fast:** Aggressive, rapid stabilization.
-- **Visualization:** Real-time graphics with SFML, showing rocket state and control actions.
+- **Physics:** Simulates a 2D rigid-body rocket with 6-DOF (x, y, θ and their derivatives), gravity, thrust, and a variable-thrust gimbaled engine.
+- **Control:** Uses a Linear Quadratic Regulator (LQR) for full-state feedback to stabilize the rocket at a desired state equilibrium point. Two profiles are demonstrated:
+  - **Slow:** A slower, more gentle response profile that prioritizes minimizing control actuation effort, characterized by a high control cost.
+  - **Fast:** A faster, more aggressive response that stabilizes the rocket more rapidly at the expense of greater control effort. 
+- **Visualization:** Real-time graphics with SFML, displaying rocket state, control actions, and system behavior over time.
 
-## How It Works
+## How to run the simulation: 
 
 1. **LQR Gain Generation:**  
    Run the Python script to generate LQR gain matrices for both profiles:
@@ -35,11 +35,3 @@ A real-time 2D rocket landing simulation with full-state feedback LQR control, u
    ./RocketSim.exe fast   # Aggressive controller
    ```
    The controller profile determines which gain file is loaded.
-
-## Project Structure
-
-- **src/**: C++ source files for simulation, control, and rendering.
-- **include/**: C++ headers.
-- **scripts/**: Python script for generating LQR gains.
-- **lqr_gains_*.json**: Controller gain files (auto-generated).
-- **build/**: Build output directory.
