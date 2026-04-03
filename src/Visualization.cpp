@@ -71,8 +71,18 @@ namespace Visualization {
     void draw_ground(sf::RenderWindow& window) {
         sf::RectangleShape ground(sf::Vector2f(WINDOW_WIDTH, 50.0f));
         ground.setPosition(sf::Vector2f(0, GROUND_Y));
-        ground.setFillColor(sf::Color::Green);
+        ground.setFillColor(sf::Color(34, 85, 34));
         window.draw(ground);
+    }
+
+    void draw_setpoint(sf::RenderWindow& window, double x, double y) {
+        sf::Vector2f pos = world_to_screen(x, y);
+        float radius = 5.0f;
+        sf::CircleShape dot(radius);
+        dot.setFillColor(sf::Color(220, 50, 50));
+        dot.setOrigin(sf::Vector2f(radius, radius));
+        dot.setPosition(pos);
+        window.draw(dot);
     }
 
     void draw_axes(sf::RenderWindow& window, const sf::Font& font) {

@@ -108,6 +108,7 @@ int main(int argc, char* argv[]) {
         window.clear(sf::Color::Black);
         Visualization::draw_axes(window, font);
         Visualization::draw_ground(window);
+        Visualization::draw_setpoint(window, setpoint(0), setpoint(2));
         Visualization::draw_rocket(window, rocket, 30.0f);
         window.display();
 
