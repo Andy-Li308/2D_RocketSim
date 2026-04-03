@@ -9,7 +9,7 @@ import json
 # Q/R weight profiles
 PROFILES = {
     "slow": {
-        "Q": [2.0, 0.5, 2.0, 0.5, 1.0, 0.1],
+        "Q": [2.0, 0.5, 2.0, 6.5, 1.0, 0.1],
         "R": [5.0, 5.0],
         "description": "Slow controller - low control effort, gentle response",
     },

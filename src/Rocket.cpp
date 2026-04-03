@@ -56,9 +56,10 @@ void Rocket::update(double dt) {
 }
 
 void Rocket::check_ground_collision(double ground_level) {
-    if (state(2) < ground_level) {
+    if (state(2) <= ground_level) {
         state(2) = ground_level;
         state(3) = 0.0;
+        state(1) *= 0.5;  // ground friction damps horizontal velocity
         state(5) *= 0.5;
     }
 }

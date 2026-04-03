@@ -4,8 +4,8 @@
 #include <sstream>
 #include <algorithm>
 
-Controller::Controller(double max_thrust, double max_gimbal)
-    : max_thrust(max_thrust), max_gimbal(max_gimbal) {
+Controller::Controller(double max_thrust, double max_gimbal, double mass, double gravity)
+    : max_thrust(max_thrust), max_gimbal(max_gimbal), mass(mass), gravity(gravity) {
     K = Eigen::Matrix<double, 2, 6>::Zero();
 }
 
@@ -105,10 +105,19 @@ bool Controller::load_gains_from_json(const std::string& filename) {
 
 Eigen::Vector2d Controller::compute_control(const Eigen::VectorXd& state,
                                             const Eigen::VectorXd& state_ref) {
-    if (state.size() != 6 || state_ref.size() != 6) return Eigen::Vector2d::Zero();
+    if (state.size() != 6 || state_ref.size() != 6) return Eigen::Vector2d(mass * gravity, 0.0);
+
+    // LQR perturbation from equilibrium
     Eigen::VectorXd error = state - state_ref;
-    Eigen::Vector2d control = -K * error;
-    control(0) = std::clamp(control(0), -max_thrust, max_thrust);
+    Eigen::Vector2d u_perturbation = -K * error;
+
+    // Add equilibrium feedforward: T_eq = mg, alpha_eq = 0
+    Eigen::Vector2d control;
+    control(0) = mass * gravity + u_perturbation(0);
+    control(1) = u_perturbation(1);
+
+    // Clamp absolute values to physical limits
+    control(0) = std::clamp(control(0), 0.0, max_thrust);
     control(1) = std::clamp(control(1), -max_gimbal, max_gimbal);
     return control;
 }

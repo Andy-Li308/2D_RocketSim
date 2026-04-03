@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <Eigen/Dense>
@@ -19,7 +20,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::string gains_file = "../lqr_gains_" + profile + ".json";
-    std::string window_title = "Rocket Sim - " + (profile == "fast" ? "FAST" : "SLOW");
+    std::string window_title = std::string("Rocket Sim - ") + (profile == "fast" ? "FAST" : "SLOW");
 
     Eigen::VectorXd initial_state = Eigen::VectorXd::Zero(6);
     initial_state(0) = 2.0;
@@ -35,7 +36,7 @@ int main(int argc, char* argv[]) {
 
     sf::Font font("C:\\Windows\\Fonts\\consola.ttf");
 
-    Controller controller(100.0, M_PI / 2);
+    Controller controller(100.0, M_PI / 2, rocket.m, rocket.g);
     if (!controller.load_gains_from_json(gains_file)) {
         std::cerr << "Could not load " << gains_file << "\n";
         return 1;
@@ -49,6 +50,14 @@ int main(int argc, char* argv[]) {
 
     int frame = 0;
     double simulation_time = 0.0;
+    bool engine_cut = false;
+
+    std::ofstream log_file("../sim_log.csv");
+    log_file << "time,x,xdot,y,ydot,theta,thetadot,thrust,alpha,x_err,y_err\n";
+
+    std::ofstream meta_file("../sim_meta.txt");
+    meta_file << profile << "\n";
+    meta_file.close();
 
     while (window.isOpen()) {
         std::optional<sf::Event> event = window.pollEvent();
@@ -58,13 +67,26 @@ int main(int argc, char* argv[]) {
         }
 
         Eigen::VectorXd state = rocket.get_state();
-        if (state(2) <= setpoint(2) && std::abs(state(3)) < 1.0) {
+
+        if (!engine_cut) {
+            Eigen::VectorXd error = state - setpoint;
+            bool stable = std::abs(error(0)) < 0.05
+                       && std::abs(error(1)) < 0.05
+                       && std::abs(error(2)) < 0.05
+                       && std::abs(error(3)) < 0.05
+                       && std::abs(error(4)) < 0.02
+                       && std::abs(error(5)) < 0.02;
+            if (stable) {
+                engine_cut = true;
+                std::cout << "[+] Hover stable at t=" << simulation_time << "s — engine cut\n";
+            } else {
+                Eigen::Vector2d control = controller.compute_control(state, setpoint);
+                rocket.set_control(control(0), control(1));
+            }
+        }
+
+        if (engine_cut) {
             rocket.set_control(0.0, 0.0);
-        } else {
-            Eigen::Vector2d control = controller.compute_control(state, setpoint);
-            double total_thrust = rocket.m * rocket.g + control(0);
-            total_thrust = std::clamp(total_thrust, 0.0, 100.0);
-            rocket.set_control(total_thrust, control(1));
         }
 
         rocket.update(SIM_DT);
@@ -72,6 +94,16 @@ int main(int argc, char* argv[]) {
 
         simulation_time += SIM_DT;
         frame++;
+
+        // Log data for plotting
+        Eigen::VectorXd log_state = rocket.get_state();
+        log_file << simulation_time << ","
+                 << log_state(0) << "," << log_state(1) << ","
+                 << log_state(2) << "," << log_state(3) << ","
+                 << log_state(4) << "," << log_state(5) << ","
+                 << rocket.thrust << "," << rocket.alpha << ","
+                 << (log_state(0) - setpoint(0)) << ","
+                 << (log_state(2) - setpoint(2)) << "\n";
 
         window.clear(sf::Color::Black);
         Visualization::draw_axes(window, font);
@@ -87,6 +119,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    log_file.close();
     std::cout << "Simulation ended. Time: " << simulation_time << "s, Frames: " << frame << "\n";
     std::cout << "===========================================\n";
 

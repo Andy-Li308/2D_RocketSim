@@ -16,10 +16,6 @@
  *   thetadot = angular velocity
  */
 class Rocket {
-    Eigen::VectorXd state;
-
-
-class Rocket {
 public:
     double m;
     double L;
@@ -41,4 +37,5 @@ public:
 private:
     Eigen::VectorXd compute_derivatives(const Eigen::VectorXd& state) const;
 };
-     * @return Copy of state [x, xdot, y, ydot, theta, thetadot]
+
+#endif // ROCKET_H
