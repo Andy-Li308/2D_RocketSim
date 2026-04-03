@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from compute_lqr_gains import PROFILES
 
 profile = "fast"
-meta_path = os.path.join(os.path.dirname(__file__), "..", "sim_meta.txt")
+meta_path = os.path.join(os.path.dirname(__file__), "..", "data", "sim_meta.txt")
 if len(sys.argv) > 1:
     profile = sys.argv[1]
 elif os.path.exists(meta_path):
@@ -20,7 +20,7 @@ if profile not in PROFILES:
     sys.exit(1)
 
 # Load K from JSON
-gains_path = os.path.join(os.path.dirname(__file__), "..", f"lqr_gains_{profile}.json")
+gains_path = os.path.join(os.path.dirname(__file__), "..", "data", f"lqr_gains_{profile}.json")
 with open(gains_path) as f:
     gains_data = json.load(f)
 

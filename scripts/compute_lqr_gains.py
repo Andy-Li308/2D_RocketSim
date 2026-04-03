@@ -1,6 +1,7 @@
 
 
 import argparse
+import os
 import numpy as np
 from scipy.linalg import solve_continuous_are
 import json
@@ -87,4 +88,4 @@ if __name__ == "__main__":
 
     for profile in profiles:
         K = compute_lqr_gains(profile=profile)
-        save_gains(K, f"lqr_gains_{profile}.json", profile=profile)
+        save_gains(K, os.path.join(os.path.dirname(__file__), "..", "data", f"lqr_gains_{profile}.json"), profile=profile)

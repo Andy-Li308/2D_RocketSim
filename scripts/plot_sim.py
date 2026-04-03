@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import sys
 import os
 
-csv_path = os.path.join(os.path.dirname(__file__), "..", "sim_log.csv")
+csv_path = os.path.join(os.path.dirname(__file__), "..", "data", "sim_log.csv")
 if len(sys.argv) > 1:
     csv_path = sys.argv[1]
 

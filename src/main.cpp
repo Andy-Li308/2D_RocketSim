@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string gains_file = "../lqr_gains_" + profile + ".json";
+    std::string gains_file = "../data/lqr_gains_" + profile + ".json";
     std::string window_title = std::string("Rocket Sim - ") + (profile == "fast" ? "FAST" : "SLOW");
 
     Eigen::VectorXd initial_state = Eigen::VectorXd::Zero(6);
@@ -52,10 +52,10 @@ int main(int argc, char* argv[]) {
     double simulation_time = 0.0;
     bool engine_cut = false;
 
-    std::ofstream log_file("../sim_log.csv");
+    std::ofstream log_file("../data/sim_log.csv");
     log_file << "time,x,xdot,y,ydot,theta,thetadot,thrust,alpha,x_err,y_err\n";
 
-    std::ofstream meta_file("../sim_meta.txt");
+    std::ofstream meta_file("../data/sim_meta.txt");
     meta_file << profile << "\n";
     meta_file.close();
 
